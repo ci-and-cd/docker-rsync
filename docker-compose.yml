@@ -1,0 +1,34 @@
+
+version: '2.1'
+services:
+  image:
+    environment:
+      - RSYNC_HOSTS_ALLOW=${RSYNC_HOSTS_ALLOW:-192.168.0.0/24 192.168.1.0/24 192.168.8.0/24 192.168.24.0/24 172.16.0.0/12 127.0.0.1/32}
+      - RSYNC_PASSWORD=${RSYNC_PASSWORD:-rsync_user_pass}
+      - RSYNC_USERNAME=${RSYNC_USERNAME:-rsync_user}
+      - RSYNC_VOLUME_PATH=${RSYNC_VOLUME_PATH:-/data}
+    extends:
+      file: docker-compose-base.yml
+      service: base-rsync
+    network_mode: bridge
+    ports:
+      - "${EXTERNAL_RSYNC_873_PORT:-8873}:873"
+      - "${EXTERNAL_SSH_22_PORT:-8022}:22"
+    restart: always
+    volumes:
+      - data:/data
+      - dot_ssh:/root/.ssh
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/data
+      o: bind
+  dot_ssh:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/dot_ssh
+      o: bind
