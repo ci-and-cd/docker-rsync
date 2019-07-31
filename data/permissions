@@ -1,0 +1,7 @@
+
+d dot_ssh                       0:0 755
+f dot_ssh/authorized_keys       0:0 644
+f dot_ssh/id_rsa                0:0 400
+f dot_ssh/id_rsa.pub            0:0 644
+f dot_ssh/id_rsa-passphrase     0:0 400
+f dot_ssh/id_rsa-passphrase.pub 0:0 644

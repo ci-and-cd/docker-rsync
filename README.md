@@ -165,6 +165,7 @@ docker run \
 ```
 
 ```
+$ chmod 0400 data/dot_ssh/id_rsa data/dot_ssh/id_rsa-passphrase
 $ rsync -av -e "ssh -i /path/to/private_key -p 8022 -l root" local/directory/ localhost:/data
 ```
 e.g. `rsync -av -e "ssh -i ${PWD}/data/dot_ssh/id_rsa -p 8022 -l root" ../docker-redis/ localhost:/data/docker-redis/`
