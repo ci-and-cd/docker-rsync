@@ -18,6 +18,8 @@ services:
     volumes:
       - data:/data
       - dot_ssh:/root/.ssh
+      - host_user_dot_ssh:/root/host_dot_ssh
+      - pwd:${PWD}
 
 volumes:
   data:
@@ -31,4 +33,16 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/data/dot_ssh
+      o: bind
+  host_user_dot_ssh:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOME}/.ssh
+      o: bind
+  pwd:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}
       o: bind

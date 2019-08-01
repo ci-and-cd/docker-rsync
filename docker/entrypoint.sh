@@ -6,39 +6,46 @@ RSYNC_PASSWORD=${RSYNC_PASSWORD:-rsync_user_pass}
 RSYNC_HOSTS_ALLOW=${RSYNC_HOSTS_ALLOW:-192.168.0.0/16 172.16.0.0/12 127.0.0.1/32}
 RSYNC_VOLUME_PATH=${RSYNC_VOLUME_PATH:-/data}
 
-if [ "$1" = 'rsync_server' ]; then
-    if [ -e "/root/.ssh/authorized_keys" ]; then
-        chmod 400 /root/.ssh/authorized_keys
+if [[ "$1" = 'rsync_server' ]]; then
+    if [[ -e "/root/.ssh/authorized_keys" ]]; then
         chown root:root /root/.ssh/authorized_keys
+        chmod 644 /root/.ssh/authorized_keys
     fi
-    exec /usr/sbin/sshd &
+    echo "root:${RSYNC_PASSWORD}" | chpasswd
 
-    echo "root:$RSYNC_PASSWORD" | chpasswd
-
-    echo "$RSYNC_USERNAME:$RSYNC_PASSWORD" > /etc/rsyncd.secrets
+    echo "${RSYNC_USERNAME}:${RSYNC_PASSWORD}" > /etc/rsyncd.secrets
+    chown root:root /etc/rsyncd.secrets
     chmod 0400 /etc/rsyncd.secrets
+    mkdir -p ${RSYNC_VOLUME_PATH}
+    chown root:root ${RSYNC_VOLUME_PATH}
 
-    mkdir -p $RSYNC_VOLUME_PATH
-
-    [ -f /etc/rsyncd.conf ] || cat <<EOF > /etc/rsyncd.conf
-    pid file = /var/run/rsyncd.pid
+    [[ -f /etc/rsyncd.conf ]] || cat <<EOF > /etc/rsyncd.conf
+    lock file = /var/lock/rsyncd.lock
     log file = /dev/stdout
-    timeout = 300
     max connections = 10
+    pid file = /var/run/rsyncd.pid
     port = 873
+    timeout = 300
     [volume]
-        uid = root
+        auth users = ${RSYNC_USERNAME}
+        comment = ${RSYNC_VOLUME_PATH} directory
         gid = root
-        hosts deny = *
         hosts allow = ${RSYNC_HOSTS_ALLOW}
+        hosts deny = *
         read only = false
         path = ${RSYNC_VOLUME_PATH}
-        comment = ${RSYNC_VOLUME_PATH} directory
-        auth users = ${RSYNC_USERNAME}
         secrets file = /etc/rsyncd.secrets
+        uid = root
 EOF
 
-    exec /usr/bin/rsync --no-detach --daemon --config /etc/rsyncd.conf "$@"
-fi
+    if [[ -e "/root/host_dot_ssh/id_rsa.pub" ]]; then
+        echo -e '\n' >> /root/.ssh/authorized_keys
+        cat /root/host_dot_ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+    fi
 
-exec "$@"
+    exec /usr/sbin/sshd &
+    shift
+    exec /usr/bin/rsync --no-detach --daemon --config /etc/rsyncd.conf "${@:2}"
+else
+    exec "$@"
+fi
