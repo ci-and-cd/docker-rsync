@@ -4,6 +4,7 @@ set -e
 RSYNC_USERNAME=${RSYNC_USERNAME:-rsync_user}
 RSYNC_PASSWORD=${RSYNC_PASSWORD:-rsync_user_pass}
 RSYNC_HOSTS_ALLOW=${RSYNC_HOSTS_ALLOW:-192.168.0.0/16 172.16.0.0/12 127.0.0.1/32}
+RSYNC_VOLUME_NAME=${RSYNC_VOLUME_NAME:-volume}
 RSYNC_VOLUME_PATH=${RSYNC_VOLUME_PATH:-/data}
 
 if [[ "$1" = 'rsync_server' ]]; then
@@ -26,7 +27,7 @@ if [[ "$1" = 'rsync_server' ]]; then
     pid file = /var/run/rsyncd.pid
     port = 873
     timeout = 300
-    [volume]
+    [${RSYNC_VOLUME_NAME}]
         auth users = ${RSYNC_USERNAME}
         comment = ${RSYNC_VOLUME_PATH} directory
         gid = root

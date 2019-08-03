@@ -6,6 +6,7 @@ services:
       - RSYNC_HOSTS_ALLOW=${RSYNC_HOSTS_ALLOW:-192.168.0.0/24 192.168.1.0/24 192.168.8.0/24 192.168.24.0/24 172.16.0.0/12 127.0.0.1/32}
       - RSYNC_PASSWORD=${RSYNC_PASSWORD:-rsync_user_pass}
       - RSYNC_USERNAME=${RSYNC_USERNAME:-rsync_user}
+      - RSYNC_VOLUME_NAME=${RSYNC_VOLUME_NAME:-volume}
       - RSYNC_VOLUME_PATH=${RSYNC_VOLUME_PATH:-/data}
     extends:
       file: docker-compose-base.yml

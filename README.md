@@ -18,10 +18,10 @@ $ docker run \
 
 #### `rsyncd`
 
-Please note that `/volume` is the `rsync` volume pointing to `/data`. The data
+Please note that `/${RSYNC_VOLUME_NAME:-volume}` is the `rsync` volume pointing to `/data`. The data
 will be at `/data` in the container. Use the `RSYNC_VOLUME_PATH` parameter to change the
 destination path in the container. Even when changing `RSYNC_VOLUME_PATH`, you will still
-`rsync` to `/volume`.
+`rsync` to `/${RSYNC_VOLUME_NAME:-volume}`.
 
 ```
 $ rsync -av local/directory/ rsync://rsync_user@localhost:8873/volume
@@ -149,7 +149,7 @@ password (which was specified in the `RSYNC_PASSWORD` variable).
 
 Please note that when using `sshd` **you will be specifying the actual folder
 destination as you would when using SSH.** On the contrary, when using the
-`rsyncd` daemon, you will always be using `/volume`, which maps to `RSYNC_VOLUME_PATH`
+`rsyncd` daemon, you will always be using `/${RSYNC_VOLUME_NAME:-volume}`, which maps to `RSYNC_VOLUME_PATH`
 inside of the container.
 
 ```
